@@ -18,8 +18,8 @@ export class PostsController {
    * Returns all posts
    */
   @Get()
-  getAllPost() {
-    return this.postsService.getAllPosts();
+  async getAllPost() {
+    return await this.postsService.getAllPosts();
   }
 
   /**
@@ -27,8 +27,8 @@ export class PostsController {
    * @param id
    */
   @Get(':id')
-  getPostById(@Param('id') id: string) {
-    return this.postsService.getPostById((id as unknown) as number);
+  async getPostById(@Param('id') id: string) {
+    return await this.postsService.getPostById((id as unknown) as number);
   }
 
   /**
@@ -37,7 +37,7 @@ export class PostsController {
    */
   @Post()
   async createPost(@Body() post: CreatePostDto) {
-    return this.postsService.createPost(post);
+    return await this.postsService.createPost(post);
   }
 
   /**
@@ -47,7 +47,7 @@ export class PostsController {
    */
   @Put(':id')
   async replacePost(@Param('id') id: string, @Body() post: UpdatePostDto) {
-    return this.postsService.replacePost((id as unknown) as number, post);
+    return await this.postsService.updatePost((id as unknown) as number, post);
   }
 
   /**
