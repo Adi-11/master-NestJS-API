@@ -1,15 +1,18 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-class PostUser {
+class NestUser extends BaseEntity {
   @PrimaryGeneratedColumn()
-  public id: string;
+  public id: number;
+
+  @Column({ unique: true })
+  public email: string;
 
   @Column()
-  public title: string;
+  public name: string;
 
   @Column()
-  public content: string;
+  public password: string;
 }
 
-export default PostUser;
+export default NestUser;
