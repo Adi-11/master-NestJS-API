@@ -1,8 +1,8 @@
 import { hash, compare } from 'bcrypt';
 
 export class Helper {
-  static hashPassword(password: string): Promise<string> {
-    return hash(password, 10);
+  static hashPassword(password: string, salt: number): Promise<string> {
+    return hash(password, salt);
   }
 
   static passwordsAreEqual(

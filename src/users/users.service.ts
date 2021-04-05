@@ -18,7 +18,7 @@ export class UsersService {
     private userRepository: Repository<NestUser>,
   ) {}
 
-  getUserByEmail = async (email: string): Promise<User | HttpException> => {
+  getUserByEmail = async (email: string): Promise<User> => {
     const user: User = await this.userRepository.findOne({ email });
     if (user) {
       return user;
@@ -30,16 +30,28 @@ export class UsersService {
     );
   };
 
-  create = async (userData: CreateUserDto): Promise<User | HttpException> => {
+  create = async (userData: CreateUserDto): Promise<User> => {
     const newUser = this.userRepository.create(userData);
+    console.log({ user: newUser });
     if (newUser) {
       await this.userRepository.save(newUser);
       return newUser;
+    } else {
+      throw new HttpException(
+        'INTERNAL SERVER ERROR',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
+  };
 
+  getUserById = async (id: number): Promise<User> => {
+    const user = await this.userRepository.findOne({ id });
+    if (user) {
+      return user;
+    }
     throw new HttpException(
-      'INTERNAL SERVER ERROR',
-      HttpStatus.INTERNAL_SERVER_ERROR,
+      'User with this id does not exist',
+      HttpStatus.NOT_FOUND,
     );
   };
 }
