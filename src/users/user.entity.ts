@@ -1,3 +1,4 @@
+import { Exclude, Expose } from 'class-transformer';
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
@@ -12,6 +13,7 @@ class NestUser extends BaseEntity {
   public name: string;
 
   @Column()
+  @Exclude()
   public password: string;
 }
 
