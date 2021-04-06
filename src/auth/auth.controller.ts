@@ -1,11 +1,14 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   HttpCode,
   Post,
   Req,
   Res,
+  SerializeOptions,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -14,6 +17,7 @@ import { LocalAuthenticationGuard } from './localAuth.guard';
 import RequestWithUser from './requestWithUser.interface';
 
 @Controller('auth')
+@UseInterceptors(ClassSerializerInterceptor)
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
@@ -26,12 +30,11 @@ export class AuthController {
   @HttpCode(200)
   @UseGuards(LocalAuthenticationGuard)
   @Post('login')
-  async login(@Req() request: RequestWithUser, @Res() response: any) {
+  login(@Req() request: RequestWithUser) {
     const { user } = request;
     const cookie = this.authService.getCookieWithToken(user.id);
-    response.setHeader('Set-Cookie', cookie);
+    request.res.setHeader('Set-Cookie', cookie);
     user.password = undefined;
-    console.log({ user: user });
     return user;
   }
 
