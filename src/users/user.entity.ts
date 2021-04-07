@@ -1,8 +1,16 @@
 import { Exclude, Expose } from 'class-transformer';
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  JoinColumn,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import UserAddress from './address.entity';
 
 @Entity()
-class NestUser extends BaseEntity {
+export default class NestUser extends BaseEntity {
   @PrimaryGeneratedColumn()
   public id: number;
 
@@ -15,6 +23,8 @@ class NestUser extends BaseEntity {
   @Column()
   @Exclude()
   public password: string;
-}
 
-export default NestUser;
+  @OneToOne(() => UserAddress)
+  @JoinColumn()
+  public addess: UserAddress;
+}
