@@ -1,9 +1,11 @@
 import { Exclude, Expose } from 'class-transformer';
+import PostUser from 'src/posts/userPost.entity';
 import {
   BaseEntity,
   Column,
   Entity,
   JoinColumn,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -24,7 +26,10 @@ export default class NestUser extends BaseEntity {
   @Exclude()
   public password: string;
 
-  @OneToOne(() => UserAddress)
+  @OneToOne(() => UserAddress, { eager: true, cascade: true })
   @JoinColumn()
-  public addess: UserAddress;
+  public address: UserAddress;
+
+  @OneToMany(() => PostUser, (post: PostUser) => post.author)
+  public posts: PostUser[];
 }

@@ -19,8 +19,8 @@ export default class UserAddress extends BaseEntity {
   public city: string;
 
   @Column()
-  public column: string;
+  public country: string;
 
-  @OneToOne(() => NestUser, (user: NestUser) => user.addess)
+  @OneToOne(() => NestUser, (user: NestUser) => user.address)
   public user: NestUser;
 }
