@@ -5,6 +5,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import PostUser from './userPost.entity';
 import { Repository } from 'typeorm/repository/Repository';
 import { DeleteResult } from 'typeorm';
+import { User } from 'src/users/users.service';
+import { PostNotFoundException } from './exception/postNotFund.exception';
 
 export interface Post {
   id: number;
@@ -14,15 +16,17 @@ export interface Post {
 
 @Injectable()
 export class PostsService {
-  private lastPost = 0;
-  private posts: Post[] = [];
+  // private lastPost = 0;
+  // private posts: Post[] = [];
   constructor(
     @InjectRepository(PostUser)
     private postRepository: Repository<PostUser>,
   ) {}
 
-  getAllPosts = async (): Promise<PostUser[] | HttpException> => {
-    const post: PostUser[] = await this.postRepository.find();
+  getAllPosts = async (): Promise<PostUser[]> => {
+    const post: PostUser[] = await this.postRepository.find({
+      relations: ['author'],
+    });
     if (post.length > 0) {
       return post;
     }
@@ -30,25 +34,22 @@ export class PostsService {
     throw new HttpException('Post Not Found', HttpStatus.NOT_FOUND);
   };
 
-  getPostById = async (id: number): Promise<PostUser | HttpException> => {
-    const post: PostUser = await this.postRepository.findOne(id);
+  getPostById = async (id: number): Promise<PostUser> => {
+    const post: PostUser = await this.postRepository.findOne(id, {
+      relations: ['author'],
+    });
     if (post) {
       return post;
     }
 
-    throw new HttpException('Post Not Found', HttpStatus.NOT_FOUND);
+    throw new PostNotFoundException(id);
   };
 
-  createPost = async (
-    post: CreatePostDto,
-  ): Promise<PostUser | HttpException> => {
-    // const newPost = {
-    //   id: ++this.lastPost,
-    //   ...post,
-    // };
-    // this.posts.push(newPost);
-
-    const newPost: PostUser = this.postRepository.create(post);
+  createPost = async (post: CreatePostDto, user: User): Promise<PostUser> => {
+    const newPost: PostUser = this.postRepository.create({
+      ...post,
+      author: user,
+    });
     if (newPost) {
       await this.postRepository.save(newPost);
       return newPost;
@@ -60,23 +61,22 @@ export class PostsService {
     );
   };
 
-  updatePost = async (
-    id: number,
-    post: UpdatePostDto,
-  ): Promise<PostUser | HttpException> => {
+  updatePost = async (id: number, post: UpdatePostDto): Promise<PostUser> => {
     await this.postRepository.update(id, post as any);
-    const updatedUser: PostUser = await this.postRepository.findOne(id);
+    const updatedUser: PostUser = await this.postRepository.findOne(id, {
+      relations: ['author'],
+    });
     if (updatedUser) {
       return updatedUser;
     }
 
-    throw new HttpException('Post Not Found', HttpStatus.NOT_FOUND);
+    throw new PostNotFoundException(id);
   };
 
   deletePost = async (id: number): Promise<any> => {
     const deletePost: DeleteResult = await this.postRepository.delete(id);
     if (!deletePost.affected) {
-      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+      throw new PostNotFoundException(id);
     }
   };
 }

@@ -24,7 +24,9 @@ export class AuthController {
   @Post('register')
   async register(@Body() registrationData: RegisterDto) {
     console.log('Register');
-    return await this.authService.registerUser(registrationData);
+    const user = await this.authService.registerUser(registrationData);
+    user.password = undefined;
+    return user;
   }
 
   @HttpCode(200)
