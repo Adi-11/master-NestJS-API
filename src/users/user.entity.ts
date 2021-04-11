@@ -32,4 +32,10 @@ export default class NestUser extends BaseEntity {
 
   @OneToMany(() => PostUser, (post: PostUser) => post.author)
   public posts: PostUser[];
+
+  @Column({
+    nullable: true,
+  })
+  @Exclude()
+  public currentHashedRefreshToken?: string;
 }
