@@ -1,5 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Helper } from 'src/helper/bcrypt';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/createUser.dto';
 import NestUser from './user.entity';
@@ -53,5 +54,13 @@ export class UsersService {
       'User with this id does not exist',
       HttpStatus.NOT_FOUND,
     );
+  };
+
+  setCurrentRefreshToken = async (refreshToken: string, userId: number) => {
+    const currentRefreshToken = await Helper.hashPassword(refreshToken, 10);
+
+    await this.userRepository.update(userId, {
+      currentHashedRefreshToken: currentRefreshToken,
+    });
   };
 }

@@ -10,6 +10,7 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { UsersService } from 'src/users/users.service';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import JwtAuthenticationGuard from './jwt-authentication.guard';
@@ -19,7 +20,10 @@ import RequestWithUser from './requestWithUser.interface';
 @Controller('auth')
 @UseInterceptors(ClassSerializerInterceptor)
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly userService: UsersService,
+  ) {}
 
   @Post('register')
   async register(@Body() registrationData: RegisterDto) {
@@ -32,10 +36,16 @@ export class AuthController {
   @HttpCode(200)
   @UseGuards(LocalAuthenticationGuard)
   @Post('login')
-  login(@Req() request: RequestWithUser) {
+  async login(@Req() request: RequestWithUser) {
     const { user } = request;
-    const cookie = this.authService.getCookieWithToken(user.id);
-    request.res.setHeader('Set-Cookie', cookie);
+    const accressTokencookie = this.authService.getCookieWithToken(user.id);
+    const {
+      cookie: refreshTokenCookie,
+      token: refreshToken,
+    } = this.authService.getCookieWithRefreshToken(user.id);
+    await this.userService.setCurrentRefreshToken(refreshToken, user.id);
+
+    request.res.setHeader('Set-Cookie', [refreshToken, refreshTokenCookie]);
     user.password = undefined;
     return user;
   }
