@@ -63,4 +63,30 @@ export class UsersService {
       currentHashedRefreshToken: currentRefreshToken,
     });
   };
+
+  getUserIfTokenMatches = async (refreshToken: string, userId: number) => {
+    const user = await this.userRepository.findOne({ id: userId });
+
+    if (user) {
+      const isRefreshToken: boolean = await Helper.passwordsAreEqual(
+        user.currentHashedRefreshToken,
+        refreshToken,
+      );
+
+      if (isRefreshToken) {
+        return user;
+      }
+    }
+
+    throw new HttpException(
+      'User with this id does not exist',
+      HttpStatus.NOT_FOUND,
+    );
+  };
+
+  removeRefreshToken = async (userId: number) => {
+    return this.userRepository.update(userId, {
+      currentHashedRefreshToken: null,
+    });
+  };
 }
